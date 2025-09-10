@@ -1,4 +1,4 @@
-from utils import fetch_fred_series, scale_for_inflation
+from utils import fetch_fred_series, merge_on_date, scale_for_inflation
 import pandas as pd
 
 
@@ -87,3 +87,15 @@ def _fetch_new_car_prices(start_date:str=None, end_date:str=None):
     drop_cols = ['CPI']
     
     return new_merged.drop(columns=drop_cols)
+
+
+def _fetch_all_car_prices(start_date:str=None, end_date:str=None):
+    """
+    Merged dataset with New Car CPI (CUUR0000SETA01) and Used Car CPI (CUSR0000SETA02). Prices calculated based on CPI indices for New and Used autos applied to reference years and prices
+    """
+    used_df = _fetch_used_car_prices(start_date=start_date, end_date=end_date)
+    new_df = _fetch_new_car_prices(start_date=start_date, end_date=end_date)
+
+    df = merge_on_date([new_df, used_df])
+    
+    return df
