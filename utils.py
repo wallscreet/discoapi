@@ -158,6 +158,9 @@ def calc_mtg_pi_payment(principal, annual_rate, years=30):
 
 def sanitize_for_json(df: pd.DataFrame) -> list[dict]:
     """Convert a DataFrame into JSON-safe records."""
+    df = df.copy()
+    if "Date" in df.columns:
+        df["Date"] = df["Date"].dt.strftime("%Y-%m-%d")
     safe_df = df.replace({np.nan: None})
     return safe_df.to_dict(orient="records")
 

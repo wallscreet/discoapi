@@ -228,7 +228,7 @@
         "description":"Total Households (TTLHH)",
         "category": "demographics",
         "name": "US Households",
-        "def_freq": "M"
+        "def_freq": "A"
     },
     {
         "id": "POPTHM",
@@ -264,5 +264,33 @@
         "category": "output_and_growth",
         "name": "GDP",
         "def_freq": "Q"
+    },
+    {
+        "id": "MEFAINUSA646N",
+        "description":"Median Annual Family Income in the United States (MEFAINUSA646N)",
+        "category": "wages_and_employment",
+        "name": "Median Family Income",
+        "def_freq": "Q"
+    },
+    {
+        "id": "UNRATE",
+        "description":"Unemployment Rate (UNRATE)",
+        "category": "wages_and_employment",
+        "name": "Unrate",
+        "def_freq": "M"
+    },
+    {
+        "id": "UNEMPLOY",
+        "description":"Unemployment Level (UNEMPLOY)",
+        "category": "wages_and_employment",
+        "name": "Unemployed",
+        "def_freq": "M"
+    },
+    {
+        "id": "JTSJOL",
+        "description":"Job Openings: Total Nonfarm (JTSJOL)",
+        "category": "wages_and_employment",
+        "name": "Job Openings",
+        "def_freq": "M"
     }
 ]

@@ -3,29 +3,261 @@ from fastapi.responses import JSONResponse
 import pandas as pd
 import inspect
 from dataclasses import dataclass, asdict
+from utils import sanitize_for_json, scale_for_inflation
+import modules.inflation_and_prices as inflation_and_prices
+import modules.demographics as demographics
+import modules.commodities as commodities
 
 
 app = FastAPI(title="DiscoRover API", version="0.1.0")
 
 
-modules = {
-
-}
-
-
 @app.get("/")
 def root():
-    if len(modules) > 0:
-        categorized = {}
-        for name, module in modules.items():
-            categorized[name] = []
-            for fn_name, fn in module.__dict__.items():
-                if callable(fn) and fn_name.startswith("_fetch"):
-                    categorized[name].append({
-                        "name": fn_name.replace("_fetch_", ""),
-                        "description": inspect.getdoc(fn) or ""
-                    })
-        return {"message": "DiscoRover API", "available_datasets": categorized}
+    return {"message": "DiscoRover API", "available_datasets": "No datasets available"}
 
-    else:
-        return {"message": "DiscoRover API", "available_datasets": "No datasets available"}
+
+@app.get("/cpi")
+def get_cpi(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+):
+    """Consumer Price Index for All Urban Consumers (CPIAUCSL)."""
+    try: 
+        df:pd.DataFrame = inflation_and_prices._fetch_cpi(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/scale-for-inflation")
+def scale_for_inflation_route(
+    from_year: int = Query(1980, description="Year to scale from"),
+    to_year: int = Query(2025, description="Year to scale to"),
+    amount: float = Query(100.0, description="Amount to scale")
+):
+    """
+    Scale a monetary amount from `from_year` to `to_year` using CPI data.
+    """
+    scaled_value = inflation_and_prices._fetch_scaled_with_cpi(from_year=from_year, to_year=to_year, amount=amount)
+    return {"from_year": from_year, "to_year": to_year, "original_amount": amount, "scaled_amount": scaled_value}
+
+
+@app.get("/pce")
+def get_pce(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)")
+):
+    """Consumer Price Index for All Urban Consumers (CPIAUCSL)."""
+    try: 
+        df:pd.DataFrame = inflation_and_prices._fetch_pce(start_date=start_date, end_date=end_date) 
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/households")
+def get_households(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)")
+):
+    """Total Households (TTLHH)"""
+    try: 
+        df:pd.DataFrame = demographics._fetch_us_households(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/population")
+def get_population(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)")
+):
+    """Total Households (TTLHH)"""
+    try: 
+        df:pd.DataFrame = demographics._fetch_us_population(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/us-birthrate")
+def get_us_birthrate(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+):
+    """Crude Birth Rate for the United States (SPDYNCBRTINUSA)"""
+    try: 
+        df:pd.DataFrame = demographics._fetch_us_birthrate(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/us-births-deaths-by-race")
+def get_birth_death_data(
+    start_year: int | None = Query(None, description="Filter start year (e.g. 2000)"),
+    end_year: int | None = Query(None, description="Filter end year (e.g. 2023)"),
+    race: str | None = Query(None, description="Race/Ethnicity filter ('All', 'White', 'Black', 'Hispanic')")
+):
+    """Births and Deaths by Race/Ethnicity (CDC)"""
+    try:
+        df: pd.DataFrame = demographics._fetch_birth_death_data(start_year=start_year, end_year=end_year, race=race)
+        return JSONResponse(content=df.to_dict(orient="records"))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/egg-prices")
+def get_egg_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+):
+    """Average Price: Eggs, Grade A, Large (Cost per Dozen) in U.S. City Average (APU0000708111)"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_egg_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/milk-prices")
+def get_milk_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Average Price: Milk, Fresh, Whole, Fortified (Cost per Gallon/3.8 Liters) in U.S. City Average (APU0000709112)"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_milk_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/ground-beef-prices")
+def get_ground_beef_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Average Price: Ground Beef, 100% Beef (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000703112)"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_ground_beef_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/bread-prices")
+def get_bread_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Average Price: Bread, White, Pan (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000702111)"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_bread_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/chicken-prices")
+def get_chicken_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Average Price: Chicken Breast, Boneless (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000FF1101)"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_chicken_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.get("/gas-prices")
+def get_gas_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Average Price: Gasoline, Unleaded Regular (Cost per Gallon/3.785 Liters) in U.S. City Average (APU000074714)"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_gas_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/electric-kwh-prices")
+def get_electric_kwh_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Average Price: Electricity per Kilowatt-Hour in U.S. City Average (APU000072610)"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_electric_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/coffee-prices")
+def get_coffee_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Average Price: Coffee, 100%, Ground Roast, All Sizes (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000717311)"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_coffee_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.get("/bacon-prices")
+def get_bacon_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Average Price: Bacon, Sliced (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000704111)"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_bacon_sliced_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/all-commodity-prices")
+def get_all_commodity_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Aggregated Dataset with Average Price:  All Commodities available in API"""
+    try: 
+        df:pd.DataFrame = commodities._fetch_all_commodity_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
