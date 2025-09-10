@@ -1,12 +1,11 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import JSONResponse
 import pandas as pd
-import inspect
-from dataclasses import dataclass, asdict
-from utils import sanitize_for_json, scale_for_inflation
+from utils import sanitize_for_json
 import modules.inflation_and_prices as inflation_and_prices
 import modules.demographics as demographics
 import modules.commodities as commodities
+import modules.rates as rates
 
 
 app = FastAPI(title="DiscoRover API", version="0.1.0")
@@ -257,6 +256,87 @@ def get_all_commodity_prices(
     """Aggregated Dataset with Average Price:  All Commodities available in API"""
     try: 
         df:pd.DataFrame = commodities._fetch_all_commodity_prices(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/mortgage-30yr")
+def get_30yr_mortgage_rates(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('A', description="Frequency period")
+):
+    """
+    30-Year Fixed Rate Mortgage Average in the United States (MORTGAGE30US)
+    """
+    try: 
+        df:pd.DataFrame = rates._fetch_30yr_mortgage_rates(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/mortgage-15yr")
+def get_15yr_mortgage_rates(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('A', description="Frequency period")
+):
+    """
+    15-Year Fixed Rate Mortgage Average in the United States (MORTGAGE15US)
+    """
+    try: 
+        df:pd.DataFrame = rates._fetch_15yr_mortgage_rates(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/mortgage-all")
+def get_all_mortgage_rates(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('A', description="Frequency period")
+):
+    """
+    Fetch both 30-year and 15-year mortgage rates and merge them into a single DataFrame.
+    """
+    try: 
+        df:pd.DataFrame = rates._fetch_all_mortgage_rates(start_date=start_date, end_date=end_date, freq=freq)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/sofr")
+def get_sofr(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query(None, description="Frequency Period")
+):
+    """Secured Overnight Financing Rate (SOFR)"""
+    try: 
+        df:pd.DataFrame = rates._fetch_sofr(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/fed-funds")
+def get_fed_funds_rate(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Federal Funds Effective Rate (FEDFUNDS)"""
+    try: 
+        df:pd.DataFrame = rates._fetch_fed_funds_rate(start_date=start_date, end_date=end_date)   
 
         return JSONResponse(content=sanitize_for_json(df))
     except Exception as e:

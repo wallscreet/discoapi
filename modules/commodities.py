@@ -7,6 +7,7 @@ from functools import reduce
 
 def _add_real_prices(df):
     """
+    Helpers to add real prices to a dataframe with nominal prices
     """
     cpi_df = fetch_fred_series(category="inflation_and_prices", series_id="CPIAUCSL")
     merged = pd.merge(df, cpi_df, on="Date", how="left")
