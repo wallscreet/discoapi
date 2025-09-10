@@ -11,6 +11,7 @@ import modules.delinquency as dq
 import modules.money_aggregates as money_aggregates
 import modules.output_and_growth as output_and_growth
 import modules.income_and_spending as income_and_spending
+import modules.wages_and_employment as wages_and_employment
 
 
 app = FastAPI(title="DiscoRover API", version="0.1.0")
@@ -558,22 +559,6 @@ def get_gdp(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/rdpi")
-def get_rdpi(
-    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
-    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)")
-):
-    """
-    Real Disposable Personal Income (DSPI)
-    """
-    try: 
-        df:pd.DataFrame = income_and_spending._fetch_median_family_income(start_date=start_date, end_date=end_date)
-
-        return JSONResponse(content=sanitize_for_json(df))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.get("/vehicle-insurance")
 def get_vehicle_ins_premiums(
     start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
@@ -610,6 +595,83 @@ def get_household_ops(
     """Expenditures: Household Operations: All Consumer Units (CXUHHOPERLB0101M)"""
     try: 
         df:pd.DataFrame = income_and_spending._fetch_houshold_ops_spend(start_date=start_date, end_date=end_date) 
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/median-family-income")
+def get_median_income(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)")
+):
+    """
+    Median Annual Family Income in the United States (MEFAINUSA646N) | default freq= A |
+    """
+    try: 
+        df:pd.DataFrame = wages_and_employment._fetch_median_family_income(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/rdpi")
+def get_rdpi(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)")
+):
+    """
+    Real Disposable Personal Income (DSPI)
+    """
+    try: 
+        df:pd.DataFrame = wages_and_employment._fetch_median_family_income(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/unrate")
+def get_unrate(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq: str = Query(None, description="Frequency period")
+):
+    """Unemployment Rate (UNRATE)"""
+    try: 
+        df:pd.DataFrame = wages_and_employment._fetch_unrate(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/unemployed")
+def get_unemployed(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Unemployment Level (UNEMPLOY) as count of Unemployed"""
+    try: 
+        df:pd.DataFrame = wages_and_employment._fetch_unemployment_level(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/job-openings")
+def get_job_openings(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """Job Openings: Total Nonfarm (JTSJOL)"""
+    try: 
+        df:pd.DataFrame = wages_and_employment._fetch_job_openings(start_date=start_date, end_date=end_date)   
 
         return JSONResponse(content=sanitize_for_json(df))
     except Exception as e:

@@ -2,16 +2,6 @@ from utils import fetch_fred_series
 import pandas as pd
 
 
-def _fetch_real_disposable_personal_income(start_date:str=None, end_date:str=None):
-    """
-    Real Disposable Personal Income (DSPI) | path: /rdpi | default freq: 'M'
-    """
-    df = fetch_fred_series(category="income_and_spending", series_id="DSPI", start_date=start_date, end_date=end_date)
-    df['RDPI'] = df['RDPI'] * 1000000000
-
-    return df
-
-
 def _fetch_vehicle_ins_premiums(start_date:str=None, end_date:str=None):
     """
     Expenditures: Vehicle Insurance: All Consumer Units (CXU500110LB0101M) | path: /vehicle-insurance | default freq: M
