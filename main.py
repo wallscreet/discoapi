@@ -7,6 +7,8 @@ import modules.demographics as demographics
 import modules.commodities as commodities
 import modules.rates as rates
 import modules.housing as housing
+import modules.delinquency as dq
+import modules.money_aggregates as money_aggregates
 
 
 app = FastAPI(title="DiscoRover API", version="0.1.0")
@@ -444,6 +446,95 @@ def get_new_sf_homes_for_sale(
     """New One Family Houses for Sale in the United States (HNFSUSNSA)"""
     try: 
         df:pd.DataFrame = housing._fetch_new_sf_homes_for_sale(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/dq-credit-cards")
+def get_dq_credit_cards(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('Q', description="Frequency period")
+):
+    """Delinquency Rate on Credit Card Loans, All Commercial Banks (DRCCLACBS)"""
+    try: 
+        df:pd.DataFrame = dq._fetch_dq_credit_cards(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.get("/dq-consumer-loans")
+def get_dq_consumer_loans(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('Q', description="Frequency period")
+):
+    """Delinquency Rate on Consumer Loans, All Commercial Banks (DRCLACBS)"""
+    try: 
+        df:pd.DataFrame = dq._fetch_dq_consumer_loans(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/dq-sfr-mtg")
+def get_dq_sfr_mortgages(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('Q', description="Frequency period")
+):
+    """Delinquency Rate on Single-Family Residential Mortgages, Booked in Domestic Offices, All Commercial Banks (DRSFRMACBS)"""
+    try: 
+        df:pd.DataFrame = dq._fetch_dq_sfr_mortgages(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/dq-all-loans")
+def get_dq_all_loans(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('Q', description="Frequency period")
+):
+    """Delinquency Rate on All Loans, All Commercial Banks (DRALACBS)"""
+    try: 
+        df:pd.DataFrame = dq._fetch_dq_all_loans(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/m2-supply")
+def get_m2_supply(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq: str = Query(None, description="Frequency period")
+):
+    """M2 (WM2NS)"""
+    try: 
+        df:pd.DataFrame = money_aggregates._fetch_m2_supply(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/m2-velocity")
+def get_m2_velocity(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq: str = Query(None, description="Frequency period")
+):
+    """Velocity of M2 Money Stock (M2V)"""
+    try: 
+        df:pd.DataFrame = money_aggregates._fetch_m2_velocity(start_date=start_date, end_date=end_date)   
 
         return JSONResponse(content=sanitize_for_json(df))
     except Exception as e:
