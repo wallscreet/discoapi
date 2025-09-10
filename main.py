@@ -6,6 +6,7 @@ import modules.inflation_and_prices as inflation_and_prices
 import modules.demographics as demographics
 import modules.commodities as commodities
 import modules.rates as rates
+import modules.housing as housing
 
 
 app = FastAPI(title="DiscoRover API", version="0.1.0")
@@ -337,6 +338,112 @@ def get_fed_funds_rate(
     """Federal Funds Effective Rate (FEDFUNDS)"""
     try: 
         df:pd.DataFrame = rates._fetch_fed_funds_rate(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.get("/mspus")
+def get_mspus(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)")
+):
+    """
+    Median Sales Price of Houses Sold for the United States (MSPUS)
+    """
+    try: 
+        df:pd.DataFrame = housing._fetch_median_home_prices(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/mspnus")
+def get_msp_new_homes(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)")
+):
+    """
+    Median Sales Price for New Houses Sold in the United States (MSPNHSUS)
+    """
+    try: 
+        df:pd.DataFrame = housing._fetch_median_home_price_new(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/cshi")
+def get_caseshiller_homes_index(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+):
+    """S&P CoreLogic Case-Shiller U.S. National Home Price Index (CSUSHPINSA)"""
+    try: 
+        df:pd.DataFrame = housing._fetch_caseshiller_home_price_index(start_date=start_date, end_date=end_date) 
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/new-homes-ns")
+def get_new_homes_ns(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """New Houses for Sale by Stage of Construction, Not Started (NHFSEPNTS)"""
+    try: 
+        df:pd.DataFrame = housing._fetch_new_homes_ns(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/new-homes-uc")
+def get_new_homes_uc(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """New Houses for Sale (Units) by Stage of Construction, Under Construction (NHFSEPUCS)"""
+    try: 
+        df:pd.DataFrame = housing._fetch_new_homes_uc(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/new-homes-comp")
+def get_new_homes_comp(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """New Houses for Sale (Units) by Stage of Construction, Under Construction (NHFSEPUCS)"""
+    try: 
+        df:pd.DataFrame = housing._fetch_new_homes_comp(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/new-sf-homes-for-sale")
+def get_new_sf_homes_for_sale(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq:str = Query('M', description="Frequency period")
+):
+    """New One Family Houses for Sale in the United States (HNFSUSNSA)"""
+    try: 
+        df:pd.DataFrame = housing._fetch_new_sf_homes_for_sale(start_date=start_date, end_date=end_date)   
 
         return JSONResponse(content=sanitize_for_json(df))
     except Exception as e:
