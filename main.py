@@ -9,6 +9,8 @@ import modules.rates as rates
 import modules.housing as housing
 import modules.delinquency as dq
 import modules.money_aggregates as money_aggregates
+import modules.output_and_growth as output_and_growth
+import modules.income_and_spending as income_and_spending
 
 
 app = FastAPI(title="DiscoRover API", version="0.1.0")
@@ -535,6 +537,79 @@ def get_m2_velocity(
     """Velocity of M2 Money Stock (M2V)"""
     try: 
         df:pd.DataFrame = money_aggregates._fetch_m2_velocity(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/gdp")
+def get_gdp(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+    freq: str = Query(None, description="Frequency period")
+):
+    """Gross Domestic Product (GDP)"""
+    try: 
+        df:pd.DataFrame = output_and_growth._fetch_gdp(start_date=start_date, end_date=end_date)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/rdpi")
+def get_rdpi(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)")
+):
+    """
+    Real Disposable Personal Income (DSPI)
+    """
+    try: 
+        df:pd.DataFrame = income_and_spending._fetch_median_family_income(start_date=start_date, end_date=end_date)
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/vehicle-insurance")
+def get_vehicle_ins_premiums(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+):
+    """Expenditures: Vehicle Insurance: All Consumer Units (CXU500110LB0101M)"""
+    try: 
+        df:pd.DataFrame = income_and_spending._fetch_vehicle_ins_premiums(start_date=start_date, end_date=end_date) 
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/pce-healthcare")
+def get_pce_healthcare(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+):
+    """PCE Services: Healthcare (DHLCRC1Q027SBEA)."""
+    try: 
+        df:pd.DataFrame = income_and_spending._fetch_pce_healthcare(start_date=start_date, end_date=end_date) 
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/hh-ops")
+def get_household_ops(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+):
+    """Expenditures: Household Operations: All Consumer Units (CXUHHOPERLB0101M)"""
+    try: 
+        df:pd.DataFrame = income_and_spending._fetch_houshold_ops_spend(start_date=start_date, end_date=end_date) 
 
         return JSONResponse(content=sanitize_for_json(df))
     except Exception as e:
