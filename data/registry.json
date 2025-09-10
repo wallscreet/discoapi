@@ -1,0 +1,268 @@
+[
+    {
+        "id": "MSPUS",
+        "description":"Median Sales Price of Houses Sold for the United States (MSPUS)",
+        "category": "housing",
+        "name": "Median Home Sales Price",
+        "def_freq": "M"
+    },
+    {
+        "id": "MSPNHSUS",
+        "description":"Median Sales Price for New Houses Sold in the United States (MSPNHSUS)",
+        "category": "housing",
+        "name": "Median New Home Price",
+        "def_freq": "M"
+    },
+    {
+        "id": "CSUSHPINSA",
+        "description":"S&P CoreLogic Case-Shiller U.S. National Home Price Index (CSUSHPINSA)",
+        "category": "housing",
+        "name": "CSHI",
+        "def_freq": "M"
+    },
+    {
+        "id": "NHFSEPNTS",
+        "description":"New Houses for Sale by Stage of Construction, Not Started (NHFSEPNTS)",
+        "category": "housing",
+        "name": "New Homes NS",
+        "def_freq": "M"
+    },
+    {
+        "id": "NHFSEPUCS",
+        "description":"New Houses for Sale by Stage of Construction, Under Construction (NHFSEPUCS)",
+        "category": "housing",
+        "name": "New Homes UC",
+        "def_freq": "M"
+    },
+    {
+        "id": "NHFSEPCS",
+        "description":"New Houses for Sale by Stage of Construction, Completed (NHFSEPCS)",
+        "category": "housing",
+        "name": "New Homes Comp",
+        "def_freq": "M"
+    },
+    {
+        "id": "HNFSUSNSA",
+        "description":"New One Family Houses for Sale in the United States (HNFSUSNSA)",
+        "category": "housing",
+        "name": "New SF Homes",
+        "def_freq": "M"
+    },
+    {
+        "id": "APU0000708111",
+        "description":"Average Price: Eggs, Grade A, Large (Cost per Dozen) in U.S. City Average (APU0000708111)",
+        "category": "commodities",
+        "name": "Eggs Per Dozen",
+        "def_freq": "M"
+    },
+    {
+        "id": "APU0000709112",
+        "description":"Average Price: Milk, Fresh, Whole, Fortified (Cost per Gallon/3.8 Liters) in U.S. City Average (APU0000709112)",
+        "category": "commodities",
+        "name": "Milk Per Gallon",
+        "def_freq": "M"
+    },
+    {
+        "id": "APU0000703112",
+        "description":"Average Price: Ground Beef, 100% Beef (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000703112)",
+        "category": "commodities",
+        "name": "Ground Beef 1lb",
+        "def_freq": "M"
+    },
+    {
+        "id": "APU0000702111",
+        "description":"Average Price: Bread, White, Pan (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000702111)",
+        "category": "commodities",
+        "name": "Bread 1lb",
+        "def_freq": "M"
+    },
+    {
+        "id": "APU0000FF1101",
+        "description":"Average Price: Chicken Breast, Boneless (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000FF1101)",
+        "category": "commodities",
+        "name": "Chicken 1lb",
+        "def_freq": "M"
+    },
+    {
+        "id": "APU000074714",
+        "description":"Average Price: Gasoline, Unleaded Regular (Cost per Gallon/3.785 Liters) in U.S. City Average (APU000074714)",
+        "category": "commodities",
+        "name": "Gas Per Gallon",
+        "def_freq": "M"
+    },
+    {
+        "id": "APU000072610",
+        "description":"Average Price: Electricity per Kilowatt-Hour in U.S. City Average (APU000072610)",
+        "category": "commodities",
+        "name": "Electric Per kWh",
+        "def_freq": "M"
+    },
+    {
+        "id": "APU0000717311",
+        "description":"Average Price: Coffee, 100%, Ground Roast, All Sizes (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000717311)",
+        "category": "commodities",
+        "name": "Coffee 1lb",
+        "def_freq": "M"
+    },
+    {
+        "id": "APU0000704111",
+        "description":"Average Price: Bacon, Sliced (Cost per Pound/453.6 Grams) in U.S. City Average (APU0000704111)",
+        "category": "commodities",
+        "name": "Bacon 1lb",
+        "def_freq": "M"
+    },
+    {
+        "id": "DRCCLACBS",
+        "description":"Delinquency Rate on Credit Card Loans, All Commercial Banks (DRCCLACBS)",
+        "category": "delinquency",
+        "name": "Credit Cards DQ",
+        "def_freq": "Q"
+    },
+    {
+        "id": "DRCLACBS",
+        "description":"Delinquency Rate on Consumer Loans, All Commercial Banks (DRCLACBS)",
+        "category": "delinquency",
+        "name": "Consumer Loans DQ",
+        "def_freq": "Q"
+    },
+    {
+        "id": "DRSFRMACBS",
+        "description":"Delinquency Rate on Single-Family Residential Mortgages, Booked in Domestic Offices, All Commercial Banks (DRSFRMACBS)",
+        "category": "delinquency",
+        "name": "Mortgages DQ",
+        "def_freq": "Q"
+    },
+    {
+        "id": "DRALACBS",
+        "description":"Delinquency Rate on All Loans, All Commercial Banks (DRALACBS)",
+        "category": "delinquency",
+        "name": "All Loans DQ",
+        "def_freq": "Q"
+    },
+    {
+        "id": "MORTGAGE30US",
+        "description":"30-Year Fixed Rate Mortgage Average in the United States (MORTGAGE30US)",
+        "category": "rates",
+        "name": "30yr Mortgage Rate",
+        "def_freq": "W"
+    },
+    {
+        "id": "MORTGAGE15US",
+        "description":"15-Year Fixed Rate Mortgage Average in the United States (MORTGAGE15US)",
+        "category": "rates",
+        "name": "15yr Mortgage Rate",
+        "def_freq": "W"
+    },
+    {
+        "id": "SOFR",
+        "description":"Secured Overnight Financing Rate (SOFR)",
+        "category": "rates",
+        "name": "SOFR",
+        "def_freq": "D"
+    },
+    {
+        "id": "FEDFUNDS",
+        "description":"Federal Funds Effective Rate (FEDFUNDS)",
+        "category": "rates",
+        "name": "Fed Funds Rate",
+        "def_freq": "M"
+    },
+    {
+        "id": "CPIAUCSL",
+        "description":"Consumer Price Index for All Urban Consumers: All Items in U.S. City Average (CPIAUCSL)",
+        "category": "inflation_and_prices",
+        "name": "CPI",
+        "def_freq": "M"
+    },
+    {
+        "id": "PCE",
+        "description":"Personal Consumption Expenditures (PCE)",
+        "category": "inflation_and_prices",
+        "name": "PCE",
+        "def_freq": "M"
+    },
+    {
+        "id": "CUUR0000SETA01",
+        "description":" CPI New Cars and Trucks (CUUR0000SETA01)",
+        "category": "inflation_and_prices",
+        "name": "New Auto CPI",
+        "def_freq": "M"
+    },
+    {
+        "id": "CUSR0000SETA02",
+        "description":"CPI Used Cars and Trucks (CUSR0000SETA02)",
+        "category": "inflation_and_prices",
+        "name": "Used Auto CPI",
+        "def_freq": "M"
+    },
+    {
+        "id": "DSPI",
+        "description":"Real Disposable Personal Income (DSPI)",
+        "category": "income_and_spending",
+        "name": "RDPI",
+        "def_freq": "M"
+    },
+    {
+        "id": "CXU500110LB0101M",
+        "description":"Expenditures: Vehicle Insurance: All Consumer Units (CXU500110LB0101M)",
+        "category": "income_and_spending",
+        "name": "Vehicle Insurance Annual",
+        "def_freq": "M"
+    },
+    {
+        "id": "DHLCRC1Q027SBEA",
+        "description":"PCE Services: Healthcare (DHLCRC1Q027SBEA)",
+        "category": "income_and_spending",
+        "name": "PCE Healthcare",
+        "def_freq": "M"
+    },
+    {
+        "id": "CXUHHOPERLB0101M",
+        "description":"Expenditures: Household Operations: All Consumer Units (CXUHHOPERLB0101M)",
+        "category": "income_and_spending",
+        "name": "Household Ops Annual",
+        "def_freq": "M"
+    },
+    {
+        "id": "TTLHH",
+        "description":"Total Households (TTLHH)",
+        "category": "demographics",
+        "name": "US Households",
+        "def_freq": "M"
+    },
+    {
+        "id": "POPTHM",
+        "description":"Population (POPTHM)",
+        "category": "demographics",
+        "name": "US Population",
+        "def_freq": "M"
+    },
+    {
+        "id": "SPDYNCBRTINUSA",
+        "description":"Crude Birth Rate for the United States (SPDYNCBRTINUSA).",
+        "category": "demographics",
+        "name": "Births Per 1000",
+        "def_freq": "M"
+    },
+    {
+        "id": "M2SL",
+        "description":"M2 (M2SL)",
+        "category": "money_aggregates",
+        "name": "M2 Supply",
+        "def_freq": "M"
+    },
+    {
+        "id": "M2V",
+        "description":"Velocity of M2 Money Stock (M2V)",
+        "category": "money_aggregates",
+        "name": "M2 Velocity",
+        "def_freq": "Q"
+    },
+    {
+        "id": "GDP",
+        "description":"Gross Domestic Product (GDP)",
+        "category": "output_and_growth",
+        "name": "GDP",
+        "def_freq": "Q"
+    }
+]

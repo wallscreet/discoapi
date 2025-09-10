@@ -4,6 +4,102 @@ import numpy as np
 import matplotlib as plt
 import os
 import json
+from fredapi import Fred
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def pull_fred_series(series_id: str, series_name: str):
+    """
+    Fetch a time series from FRED by its series ID and convert it to a pandas DataFrame.
+    Returns DataFrame with Date as datetime64.
+    """
+    try:
+        fred = Fred(api_key=os.getenv("FRED_API_KEY"))
+        series = fred.get_series(series_id)
+        df = series.to_frame().reset_index()
+        df.columns = ["Date", series_name]
+        # keep Date as datetime64 here
+        return df
+    except Exception as e:
+        print(f"Error fetching series {series_id}: {e}")
+        return None
+
+
+def series_to_json(series_id, category, df):
+    """
+    Merge new data with existing JSON (if any) and save back to disk.
+    JSON always stores Date as 'YYYY-MM-DD' strings.
+    """
+    folder = f"data/{category}"
+    os.makedirs(folder, exist_ok=True)
+
+    path = f"{folder}/fred_{series_id}.json"
+
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            existing_data = json.load(f)
+        df_existing = pd.DataFrame(existing_data)
+        df_existing["Date"] = pd.to_datetime(df_existing["Date"])
+        df_combined = pd.concat([df_existing, df])
+    else:
+        df_combined = df
+
+    df_combined = (
+        df_combined.drop_duplicates(subset=["Date"])
+        .sort_values("Date")
+        .reset_index(drop=True)
+    )
+
+    # save date as string for JSON
+    df_combined["Date"] = df_combined["Date"].dt.strftime("%Y-%m-%d")
+
+    df_combined.to_json(path, orient="records")
+    print(f"Updated data saved to {path}")
+
+    return True
+
+
+def fetch_fred_series(category, series_id, start_date=None, end_date=None):
+    """
+    Load series from local JSON and optionally filter by start_date/end_date.
+    Returns DataFrame with Date as datetime64.
+    """
+    path = f"data/{category}/fred_{series_id}.json"
+    df = pd.read_json(path)
+
+    # convert date to datetime on load
+    df["Date"] = pd.to_datetime(df["Date"])
+
+    if start_date:
+        df = df[df["Date"] >= pd.to_datetime(start_date)]
+    if end_date:
+        df = df[df["Date"] <= pd.to_datetime(end_date)]
+
+    return df
+
+
+def load_registry(path: str):
+    """
+    Load the series registry from JSON.
+    """
+    with open(path, "r") as f:
+        return json.load(f)
+
+
+def refresh_from_registry(path="data/registry.json"):
+    """
+    Pull and refresh all series defined in the registry JSON.
+    """
+    registry = load_registry(path)
+    for entry in registry:
+        sid = entry["id"]
+        name = entry["name"]
+        category = entry["category"]
+        df = pull_fred_series(sid, name)
+        if df is not None:
+            series_to_json(sid, category, df)
 
 
 def scale_for_inflation(cpi_df: pd.DataFrame, from_year: int, to_year: int, amount: float):
@@ -75,29 +171,3 @@ def add_real_prices(df):
         df[f"{col} (Real)"] = round((df[col] * (latest_cpi / df["CPI"])),2)
     
     return df
-
-
-def series_to_json(series, df):
-    """
-    Convert a FRED series to a JSON string.
-    """
-    path = f"datasets/fred_{series}.json"
-    # If file exists, load and merge
-    if os.path.exists(path):
-        # Load existing data
-        with open(path, "r") as f:
-            existing_data = json.load(f)
-        df_existing = pd.DataFrame(existing_data)
-        df_existing["Date"] = pd.to_datetime(df_existing["Date"])
-
-        # Append only new rows
-        df_combined = pd.concat([df_existing, df])
-        df_combined = df_combined.drop_duplicates(subset=["Date"]).sort_values("Date")
-    else:
-        # No file exists, use fresh data
-        df_combined = df
-
-    # Save to JSON
-    df_combined.to_json(path, orient="records", date_format="iso")
-
-    print(f"Updated data saved to {path}")
