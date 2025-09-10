@@ -29,3 +29,61 @@ def _fetch_pce(start_date:str=None, end_date:str=None):
     df = fetch_fred_series(category="inflation_and_prices", series_id="PCE", start_date=start_date, end_date=end_date)
 
     return df
+
+
+def _fetch_used_car_prices(start_date:str=None, end_date:str=None):
+    """
+    CPI Used Cars and Trucks (CUSR0000SETA02). Prices calculated based on CPI index applied to reference year and price
+    """
+    ref_auto_cpi = 185.660
+    ref_price = 28472
+
+    # Used Auto CPI df
+    used_auto_df = fetch_fred_series(category="inflation_and_prices", series_id="CUSR0000SETA02", start_date=start_date, end_date=end_date)
+
+    # CPI
+    _cpi_df = _fetch_cpi(start_date=start_date, end_date=end_date)
+
+    used_merged = used_auto_df.merge(_cpi_df, 'inner', 'Date')
+
+    used_merged['Used Auto Price Real'] = round(used_merged['Used Auto CPI'] * (ref_price / ref_auto_cpi),2)
+    ref_cpi = used_merged['CPI'].iloc[-1]
+    used_merged['Used Auto Price Nominal'] = round(used_merged['Used Auto Price Real'] * (used_merged['CPI'] / ref_cpi), 2)
+
+    if start_date is not None:
+        used_merged = used_merged[used_merged['Date'] >= start_date]
+    if end_date is not None:
+        used_merged = used_merged[used_merged['Date'] <= end_date]
+
+    drop_cols = ['CPI']
+    used_merged.drop(columns=drop_cols, inplace=True)
+
+    return used_merged
+
+
+def _fetch_new_car_prices(start_date:str=None, end_date:str=None):
+    """
+    CPI New Cars and Trucks (CUUR0000SETA01). Prices calculated based on CPI index applied to reference year and price
+    """
+    ref_auto_cpi = 178.001
+    ref_price = 48397
+
+    # New Auto CPI
+    new_auto_df = fetch_fred_series(category="inflation_and_prices", series_id="CUUR0000SETA01", start_date=start_date, end_date=end_date)
+
+    # CPI
+    _cpi_df = _fetch_cpi(start_date=start_date, end_date=end_date)
+
+    new_merged = new_auto_df.merge(_cpi_df, 'inner', 'Date')
+    new_merged['New Auto Price Real'] = round(new_merged['New Auto CPI'] * (ref_price / ref_auto_cpi),2)
+    ref_cpi = new_merged['CPI'].iloc[-1]
+    new_merged['New Auto Price Nominal'] = round(new_merged['New Auto Price Real'] * (new_merged['CPI'] / ref_cpi), 2)
+
+    if start_date is not None:
+        new_merged = new_merged[new_merged['Date'] >= start_date]
+    if end_date is not None:
+        new_merged = new_merged[new_merged['Date'] <= end_date]
+
+    drop_cols = ['CPI']
+    
+    return new_merged.drop(columns=drop_cols)

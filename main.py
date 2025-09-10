@@ -676,3 +676,47 @@ def get_job_openings(
         return JSONResponse(content=sanitize_for_json(df))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/used-cars")
+def get_used_car_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+):
+    """CPI Used Cars and Trucks (CUSR0000SETA02). Prices calculated based on CPI index applied to reference year and price"""
+    try: 
+        df:pd.DataFrame = inflation_and_prices._fetch_used_car_prices(start_date=start_date, end_date=end_date) 
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/new-cars")
+def get_new_car_prices(
+    start_date: str | None = Query(None, description="Filter start date (YYYY-MM-DD)"),
+    end_date: str | None = Query(None, description="Filter end date (YYYY-MM-DD)"),
+):
+    """CPI New Cars and Trucks (CUUR0000SETA01). Prices calculated based on CPI index applied to reference year and price"""
+    try: 
+        df:pd.DataFrame = inflation_and_prices._fetch_new_car_prices(start_date=start_date, end_date=end_date) 
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/home-affordability")
+def get_home_affordability(
+    start_year: int | None = Query(None, description="Filter start year (YYYY)"),
+    end_year: int | None = Query(None, description="Filter end year (YYYY)"),
+):
+    """
+    Merged Report exploring prices and premiums of buying a home over the years.
+    """
+    try: 
+        df:pd.DataFrame = income_and_spending._fetch_build_home_affordability(start_year=start_year, end_year=end_year)   
+
+        return JSONResponse(content=sanitize_for_json(df))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
