@@ -5,6 +5,7 @@ import os
 import numpy as np
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 
@@ -46,9 +47,7 @@ def _fetch_build_home_affordability(start_year:int=None, end_year:int=None):
     fred = Fred(api_key=os.getenv("FRED_API_KEY"))
 
     #CPI table - resampled to annual on mean
-    cpi = fred.get_series('CPIAUCSL')
-    cpi_df = cpi.to_frame().reset_index()
-    cpi_df.columns = ['Date', 'CPI']
+    cpi_df = fetch_fred_series(category="inflation_and_prices", series_id="CPIAUCSL")
     cpi_df['Date'] = pd.to_datetime(cpi_df['Date'])
     cpi_df.set_index('Date', inplace=True)
     cpi_df = cpi_df.resample('YE').max()
@@ -90,9 +89,7 @@ def _fetch_build_home_affordability(start_year:int=None, end_year:int=None):
     merged_hoi_df['HOI Premium Nominal'] = merged_hoi_df.apply(lambda row: scale_for_inflation(cpi_df, 2024, row['Year'], row['HOI Premium Real']), axis=1)
 
     #Median Home Prices DF - resampled to annual as mean
-    median_home_prices = fred.get_series('MSPUS')
-    df_home_median_prices = median_home_prices.to_frame().reset_index()
-    df_home_median_prices.columns = ['Date', 'Median Sales Price']
+    df_home_median_prices = fetch_fred_series(category="housing", series_id="MSPUS")
     df_home_median_prices['Date'] = pd.to_datetime(df_home_median_prices['Date'])
     df_home_median_prices.set_index('Date', inplace=True)
     df_home_median_prices_annual = df_home_median_prices.resample('YE').mean()
@@ -101,9 +98,7 @@ def _fetch_build_home_affordability(start_year:int=None, end_year:int=None):
     df_home_median_prices_annual.columns = ['Year', 'Median Sales Price']
 
     #Median Family Income - annual series
-    median_family_income = fred.get_series('MEFAINUSA646N')
-    df_median_family_income =  median_family_income.to_frame().reset_index()
-    df_median_family_income.columns = ['Date', 'Median Family Income']
+    df_median_family_income = fetch_fred_series(category="wages_and_employment", series_id="MEFAINUSA646N")
     df_median_family_income['Date'] = pd.to_datetime(df_median_family_income['Date'])
     df_median_family_income.set_index('Date', inplace=True)
     df_median_family_income.index = df_median_family_income.index.year
@@ -111,9 +106,7 @@ def _fetch_build_home_affordability(start_year:int=None, end_year:int=None):
     df_median_family_income.columns = ['Year', 'Median Family Income']
 
     #30Yr Mortgage Rates - resampled to annual as mean
-    mtg30 = fred.get_series('MORTGAGE30US')
-    df_mtg30 = mtg30.to_frame().reset_index()
-    df_mtg30.columns = ['Date', '30yr Mtg Rate']
+    df_mtg30 = fetch_fred_series(category="rates", series_id="MORTGAGE30US")
     df_mtg30['Date'] = pd.to_datetime(df_mtg30['Date'])
     df_mtg30.set_index('Date', inplace=True)
     df_mtg30 = df_mtg30.resample('YE').mean()
