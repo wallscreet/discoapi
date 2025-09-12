@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import JSONResponse
 import pandas as pd
+from clients import XAIClient
 from utils import sanitize_for_json
 import modules.inflation_and_prices as inflation_and_prices
 import modules.demographics as demographics
@@ -15,7 +16,7 @@ import modules.wages_and_employment as wages_and_employment
 
 
 app = FastAPI(title="DiscoRover API", version="0.1.0")
-
+client = XAIClient()
 
 @app.get("/")
 def root():
